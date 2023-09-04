@@ -8,7 +8,8 @@ module.exports = (sequelize,DataTypes)=>{
             autoIncrement:true,
             primaryKey:true
         },
-        name:DataTypes.STRING,
+        title:DataTypes.STRING,
+        value:DataTypes.STRING,
         percentage:DataTypes.DECIMAL(10,2),
     },{
         sequelize,timestamps:true,freezeTableName:true

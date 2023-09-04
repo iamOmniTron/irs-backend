@@ -7,11 +7,12 @@ module.exports = (sequelize,DataTypes)=>{
             primaryKey:true
         },
         firstname:DataTypes.STRING,
+        tin:DataTypes.STRING,
         lastname:DataTypes.STRING,
         email:DataTypes.STRING,
         phone:DataTypes.STRING,
-        stateOfOrigin:DataTypes.STRING,
-        lga:DataTypes.STRING,
+        address:DataTypes.STRING,
+        homeTown:DataTypes.STRING,
         password:DataTypes.STRING,
         gender:DataTypes.STRING
     });

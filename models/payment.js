@@ -9,7 +9,8 @@ module.exports = (sequelize,DataTypes)=>{
             autoIncrement:true,
             primaryKey:true
         },
-        amount:DataTypes.DECIMAL(10,2)
+        amount:DataTypes.INTEGER,
+        referenceNumber:DataTypes.STRING,
     },{
         sequelize,freezeTableName:true,timestamps:true
     });

@@ -2,6 +2,7 @@ const express = require("express");
 const {ZodError} = require("zod");
 const cors = require("cors");
 const logger = require("morgan");
+const router = require("./router");
 
 require("./__dbinit")()
 
@@ -22,6 +23,8 @@ app.use("*",(_,res,next)=>{
 
 app.disable("etag");
 
+
+app.use("/api",router);
 
 app.use((err,_,res,__)=>{
     try {

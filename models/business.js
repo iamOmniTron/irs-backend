@@ -10,7 +10,12 @@ module.exports = (sequelize,DataTypes)=>{
         name:DataTypes.STRING,
         address:DataTypes.STRING,
         establishment:DataTypes.DATEONLY,
-        annualTurnOver:DataTypes.INTEGER
+        annualTurnOver:DataTypes.INTEGER,
+        lastPaymentDate:DataTypes.DATEONLY,
+        nextPaymentDate:{
+            type:DataTypes.DATEONLY,
+            defaultValue:DataTypes.NOW
+        }
     },
     {
         sequelize,freezeTableName:true,timestamps:true
@@ -21,6 +26,10 @@ module.exports = (sequelize,DataTypes)=>{
         Business.belongsTo(models.User);
         Business.belongsTo(models.LocalGovernmentArea);
         Business.belongsTo(models.BillingDuration);
+        Business.hasMany(models.Invoice)
+        Business.belongsTo(models.Size);
+        Business.belongsTo(models.Category);
+        Business.belongsTo(models.Type);
     }
 
     return Business;

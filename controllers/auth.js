@@ -1,6 +1,6 @@
 const {z} = require("zod");
 const db = require("../models");
-const { isPassMatched, genUserAuthToken } = require("../utilities/helpers");
+const { isPassMatched, genUserAuthToken, hashPassword } = require("../utilities/helpers");
 
 
 
@@ -12,7 +12,12 @@ const TypeSchemas = {
     loginAdmin: z.object({
         userId:z.string().min(1,"User ID is required"),
         password:z.string().min(1,"Password is Required")
-    })
+    }),
+    resetPasswords: z.object({
+        currentPassword:z.string().min(1,"Invalid password"),
+        newPassword:z.string().min(1,"Invalid password"),
+        confirmPassword: z.string().min(1,"Invalid password")
+    }).refine(({newPassword,confirmPassword})=> newPassword === confirmPassword,{message:"Passwords dont match"})
 }
 
 
@@ -52,4 +57,36 @@ module.exports = {
             return next(err);
         }
     },
+    resetPassword: async(req,res,next)=>{
+        try {
+            const {userId} = req;
+            console.log(userId);
+            const {currentPassword,newPassword} = TypeSchemas.resetPasswords.parse(req.body);
+            const user = await db.User.findOne({where:{id:userId}});
+            if(!user) return res.json({
+                success:false,
+                message:"Unauthorized"
+            });
+
+            const isPassMatch = await isPassMatched(currentPassword,user.password);
+            if(!isPassMatch) return res.json({
+                success:false,
+                message:"Invalid password"
+            });
+            const hashedPassword = await hashPassword(newPassword);
+            await user.update({password:hashedPassword});
+            const isUpdated = await user.save();
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"cannot update password"
+            });
+
+            return res.json({
+                success:true,
+                message:"password updated successsfully"
+        })
+        } catch (error) {
+            return next(error);
+        }
+    }
 }

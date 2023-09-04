@@ -7,11 +7,16 @@ module.exports = (sequelize,DataTypes)=>{
             autoIncrement:true,
             primaryKey:true
         },
-        name:DataTypes.STRING,
+        value:DataTypes.STRING,
         title:DataTypes.STRING
     },{
         sequelize,freezeTableName:true,timestamps:true
     });
+
+
+    Type.associate = (models)=>{
+        Type.hasMany(models.Business)
+    }
  
     return Type;
 }
