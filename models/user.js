@@ -20,7 +20,8 @@ module.exports = (sequelize,DataTypes)=>{
             defaultValue:false
         },
         otpCode:DataTypes.INTEGER,
-        otpExpiration:DataTypes.NUMBER
+        otpExpiration:DataTypes.NUMBER,
+        imageUrl:DataTypes.STRING
     });
 
 

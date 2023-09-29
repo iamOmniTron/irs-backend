@@ -60,7 +60,6 @@ module.exports = {
     resetPassword: async(req,res,next)=>{
         try {
             const {userId} = req;
-            console.log(userId);
             const {currentPassword,newPassword} = TypeSchemas.resetPasswords.parse(req.body);
             const user = await db.User.findOne({where:{id:userId}});
             if(!user) return res.json({
@@ -88,5 +87,28 @@ module.exports = {
         } catch (error) {
             return next(error);
         }
+    },
+    adminResetPassword:async(req,res,next)=>{
+        const t = await db.sequelize.transaction();
+        try {
+            const {userId} = req.params;
+            const user = await db.User.findOne({where:{id:userId}});
+            if(!user) return res.json({
+                success:false,
+                message:"Invalid User"
+            });
+            const newPassword = await hashPassword("12345678");
+            const isUpdated = await db.User.update({password:newPassword},{where:{id:userId}},{transaction:t});
+            if(isUpdated[0] < 1) return res.json({
+                success:false,
+                message:"Error reseting user password"
+            })
+            return res.json({
+                success:true,
+                message:"password reset successful"
+            })
+        } catch (error) {
+            return next(error)
+;        }
     }
 }

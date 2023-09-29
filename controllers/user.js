@@ -1,6 +1,7 @@
 const db = require("../models");
 const {z} = require("zod");
 const { parseURLParam, isNullObject, hashPassword, generateTIN } = require("../utilities/helpers");
+const path = require("path")
 
 
 const TypeSchemas = {
@@ -119,6 +120,25 @@ module.exports = {
             })
         }catch(err){
             return next(err);
+        }
+    },
+    uploadImage: async(req,res,next)=>{
+        try {
+            const {userId} =  req;
+            const file = req.file;
+            console.log(file)
+            const imageUrl = file.path.replace(/\\/g, "/").substring(7);
+            const isUpdated = await db.User.update({imageUrl},{where:{id:userId}});
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"cannot upload image"
+            });
+            return res.json({
+                success:true,
+                message:"Image uploaded successfully"
+            })
+        } catch (error) {
+            return next(error);
         }
     }
 }

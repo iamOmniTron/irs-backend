@@ -48,7 +48,7 @@ module.exports = {
     },
     getDistricts: async (req,res,next)=>{
         try{
-            const districts = await db.District.findAll();
+            const districts = await db.District.findAll({include:[{model:db.LocalGovernmentArea}]});
             return res.json({
                 success:true,
                 data:districts

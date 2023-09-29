@@ -25,6 +25,7 @@ app.disable("etag");
 
 
 app.use("/api",router);
+app.use(express.static("./public"));
 
 app.use((err,_,res,__)=>{
     try {
