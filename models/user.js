@@ -14,7 +14,8 @@ module.exports = (sequelize,DataTypes)=>{
         address:DataTypes.STRING,
         homeTown:DataTypes.STRING,
         password:DataTypes.STRING,
-        gender:DataTypes.STRING
+        gender:DataTypes.STRING,
+        imageUrl:DataTypes.STRING
     });
 
 

@@ -1,6 +1,8 @@
 require("dotenv").config();
 const {hash,compare} = require("bcrypt");
 const {sign,verify} = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path")
 
  const ONE_DAY=86400000;
  const ONE_WEEK=ONE_DAY * 7;
@@ -8,6 +10,18 @@ const {sign,verify} = require("jsonwebtoken");
  const THREE_MONTHS=ONE_MONTH*3;
  const SIX_MONTHS=THREE_MONTHS*2;
  const ONE_YEAR=SIX_MONTHS*2;
+
+
+ const storage =  multer.diskStorage({
+    destination: function (_, __, cb) {
+      cb(null, "./public/users")
+    },
+    filename: function (_, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+  })
+
+
 
 
 module.exports = {
@@ -38,4 +52,5 @@ module.exports = {
     THREE_MONTHS,
     SIX_MONTHS,
     ONE_YEAR,
+    upload:multer({storage})
 }

@@ -1,9 +1,9 @@
 const express = require("express");
-const { loginUser, loginAdmin, resetPassword } = require("../controllers/auth");
+const { loginUser, loginAdmin, resetPassword, adminResetPassword } = require("../controllers/auth");
 const { createTax, updateTax, getTaxes, deleteTax } = require("../controllers/tax");
 const { auth } = require("../middlewares");
 const { updateGTO, createGTO, getGTOs, deleteGTO } = require("../controllers/turnover");
-const { register, profile, getUsers } = require("../controllers/user");
+const { register, profile, getUsers, uploadImage } = require("../controllers/user");
 const {createSize,updateSize,getSizes,deleteSize} = require("../controllers/size")
 const {createType,updateType,getTypes,deleteType} = require("../controllers/type");
 const { createDistrict, updateDistrict, getDistricts, deleteDistrict } = require("../controllers/district");
@@ -13,6 +13,7 @@ const { createBillingDuration, updateBillingDuration, getBillingDurations, delet
 const { getBusinesses } = require("../controllers/business");
 const { getAllInvoices, getMyInvoices, generatenInvoice } = require("../controllers/invoice");
 const { createReciept, getAllPayments, getMyPayments, getLGAPayments, getDistrictPayments } = require("../controllers/payment");
+const { upload } = require("../utilities/helpers");
 
 const router = express.Router();
 
@@ -23,10 +24,12 @@ router.post("/login",loginUser);
 router.post("/admin/login",loginAdmin);
 router.post("/signup",register);
 router.post("/password-reset",auth,resetPassword);
+router.post("/admin/password-reset/user/:userId",auth,adminResetPassword);
 
 // USERS
 router.get("/get-current-user",auth,profile);
 router.get("/user/get-all",auth,getUsers);
+router.put("/user/update-image",auth,upload.single("image"),uploadImage)
 
 
 
