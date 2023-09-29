@@ -14,13 +14,20 @@ module.exports = (sequelize,DataTypes)=>{
         address:DataTypes.STRING,
         homeTown:DataTypes.STRING,
         password:DataTypes.STRING,
-        gender:DataTypes.STRING
+        gender:DataTypes.STRING,
+        isConfirmed:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false
+        },
+        otpCode:DataTypes.INTEGER,
+        otpExpiration:DataTypes.NUMBER
     });
 
 
 
     User.associate = (models)=>{
         User.hasOne(models.Business);
+        User.hasMany(models.Login);
     }
 
     return User;

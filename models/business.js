@@ -10,6 +10,10 @@ module.exports = (sequelize,DataTypes)=>{
         name:DataTypes.STRING,
         address:DataTypes.STRING,
         establishment:DataTypes.DATEONLY,
+        isRegistered:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false
+        },
         annualTurnOver:DataTypes.INTEGER,
         lastPaymentDate:DataTypes.DATEONLY,
         nextPaymentDate:{
