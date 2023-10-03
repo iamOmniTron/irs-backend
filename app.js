@@ -13,6 +13,8 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
+app.set("trust proxy",true)
+
 app.use("*",(_,res,next)=>{
     res.header("Cache-control","no-cache, no-store, must-revalidate");
     res.header("Pragma","no-cache");

@@ -83,7 +83,7 @@ module.exports = {
     getMyPayments: async (req,res,next)=>{
         try {
             const {userId} = req;
-            const payments = await db.Payment.findAll({include:[{model:db.Invoice,required:true,include:[{model:db.Business,where:{UserId:userId}}]}]});
+            const payments = await db.Payment.findAll({include:[{model:db.Invoice,required:true,include:[{model:db.Business,where:{UserId:userId},include:[{model:db.User}]}]}]});
             return res.json({
                 success:true,
                 data:payments

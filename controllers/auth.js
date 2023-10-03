@@ -1,13 +1,16 @@
 const {z} = require("zod");
 const db = require("../models");
-const { isPassMatched, genUserAuthToken, hashPassword } = require("../utilities/helpers");
+const { isPassMatched, genUserAuthToken, hashPassword, generateOTP, sendOTP, formatPhoneNumber } = require("../utilities/helpers");
+
+
+
+const ONE_SECOND = 1000;
 
 
 
 const TypeSchemas = {
     login: z.object({
         email:z.string().email("E-mail address is required"),
-        password:z.string().min(1,"Password is Required")
     }),
     loginAdmin: z.object({
         userId:z.string().min(1,"User ID is required"),
@@ -27,27 +30,85 @@ module.exports = {
 
     loginUser: async (req,res,next)=>{
         try{
-            const {email,password} = TypeSchemas.login.parse(req.body);
+            const {email} = TypeSchemas.login.parse(req.body);
             const user = await db.User.findOne({where:{email}});
-            if(!user) return next('Invalid E-mail address/Password');
-            const isMatched = await isPassMatched(password,user.password);
-            if(!isMatched) return next('Invalid E-mail address/Password');
-            const token = genUserAuthToken(user.id,false);
+            if(!user) return next('Invalid E-mail address');
+            const phoneNumber = formatPhoneNumber(user.phone);
+            const code = generateOTP();
+            console.log(code)
+            const TWO_MINUTES = ONE_SECOND * 60 * 2;
+            const isSent = await sendOTP(code,phoneNumber);
+            if(!isSent) return res.json({
+                success:false, 
+                message:"Error, resend OTP code"
+            })
+            const isUpdated = await db.User.update({
+                otpCode:code,
+                otpExpiration:TWO_MINUTES
+            },{
+                where:{email}
+            });
+            console.log("here")
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"Error, resend OTP code"
+            });
+
             return res.json({
                 success:true,
-                data:token
+                data:user.id
             })
         }catch(err){
+            return next(err);
+        }
+    },
+    confirmUserLogin:async(req,res,next)=>{
+        try {
+            const {userId} = req.params;
+            const {code} = req.body;
+            const user = await db.User.findOne({where:{id:userId,otpCode:code}});
+            if(!user) return res.json({
+                success:false,
+                message:"invalid code"
+            });
+            const isValidCode = Date.now() > user.otpExpiration;
+            if(!isValidCode) return res.json({
+                success:false,
+                message:"OTP Expired already"
+            });
+            const isUpdated = await db.User.update({otpExpiration:null,otpCode:null},{where:{id:userId}});
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"cannot login user"
+            });
+
+            const authToken = genUserAuthToken(userId,false);
+            const newSession = await db.Login.create({UserId:user.id,isAdmin:false,time:Date.now()});
+            if(!newSession) return res.json({
+                success:false,
+                message:"cannot login user"
+            })
+            return res.json({
+                success:true,
+                data:authToken
+            })
+        } catch (error) {
             return next(err);
         }
     },
     loginAdmin: async (req,res,next)=>{
         try{
             const {userId,password} = TypeSchemas.loginAdmin.parse(req.body);
+            console.log(req.ip);
             const user = await db.Admin.findOne({where:{userId}});
             if(!user) return next('Invalid UserID/Password');
             const isMatched = await isPassMatched(password,user.password);
             if(!isMatched) return next('Invalid UserID/Password');
+            const newSession = await db.Login.create({UserId:user.id,isAdmin:true,time:Date.now()});
+            if(!newSession) return res.json({
+                success:false,
+                message:"Error loggin User in"
+            })
             const token = genUserAuthToken(user.id,true);
             return res.json({
                 success:true,

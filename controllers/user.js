@@ -10,12 +10,10 @@ const TypeSchemas = {
         lastname:z.string().min(1,"Last name is required"),
         phone:z.string().min(1,"Phone number is required"),
         email:z.string().email("Email is Required"),
-        password:z.string().min(1,"Password is required"),
         homeTown:z.string().min(1,"Home town is required"),
         address:z.string().min(1,"User Address is required"),
         gender:z.string().min(1,"Gender is required"),
-        confirmPassword:z.string().min(1,"Confirm Password is required"),
-    }).refine(({password,confirmPassword})=>password === confirmPassword,{message:"Password must match confirm password"}),
+    }),
     BusinessSchema:z.object({
         name:z.string().min(1,"business name is required"),
         address:z.string().min(1,"business address is required"),
@@ -38,17 +36,15 @@ const TypeSchemas = {
 module.exports = {
     register: async (req,res,next)=>{
         try {
-            console.log(req.body)
             const userData = TypeSchemas.UserSchema.parse(req.body.userData);
             const businessData = TypeSchemas.BusinessSchema.parse(req.body.businessData);
-            const isUserExist = await db.User.findOne({where:{email:userData.password}});
+            const isUserExist = await db.User.findOne({where:{email:userData.email}});
             if(isUserExist) return res.json({
                 success:false,
                 mesage:"User Account already exists"
             });
-            const hashedPassword = await hashPassword(userData.password);
             const tin = generateTIN();
-            const user = await db.User.create({...userData,password:hashedPassword,tin});
+            const user = await db.User.create({...userData,tin});
             if(!user) return res.json({
                 success:false,
                 message:"cannot register user"
@@ -136,6 +132,46 @@ module.exports = {
             return res.json({
                 success:true,
                 message:"Image uploaded successfully"
+            })
+        } catch (error) {
+            return next(error);
+        }
+    },
+    approveUser: async (req,res,next)=>{
+        const t = await db.sequelize.transaction()
+        try {
+            const {isAdmin} = req;
+            if(!isAdmin) return res.json({
+                success:false,
+                message:"unauthorized",
+            });
+            const {userId} = req.params;
+
+            const isUserUpdated = await db.User.update({isConfirmed:true},{where:{id:userId}},{transaction:t});
+            if(!isUserUpdated) return res.json({
+                success:false,
+                message:"Error updating user"
+            });
+            const isUserBusinessUpdated = await db.Business.update({isRegistered:true},{where:{UserId:userId}},{transaction:t});
+            if(!isUserBusinessUpdated) return res.json({
+                success:false,
+                message:"Error updating user's business"
+            });
+
+            return res.json({
+                success:true,
+                message:"User approved successfully"
+            })
+        } catch (error) {
+            return next(error);
+        }
+    },
+    getLoginSessions: async (req,res,next)=>{
+        try {
+            const sessions = await db.Login.findAll({include:[{model:db.User}]});
+            return res.json({
+                success:true,
+                data:sessions
             })
         } catch (error) {
             return next(error);

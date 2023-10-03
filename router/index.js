@@ -1,9 +1,9 @@
 const express = require("express");
-const { loginUser, loginAdmin, resetPassword, adminResetPassword } = require("../controllers/auth");
+const { loginUser, loginAdmin, resetPassword, adminResetPassword, confirmUserLogin } = require("../controllers/auth");
 const { createTax, updateTax, getTaxes, deleteTax } = require("../controllers/tax");
 const { auth } = require("../middlewares");
 const { updateGTO, createGTO, getGTOs, deleteGTO } = require("../controllers/turnover");
-const { register, profile, getUsers, uploadImage } = require("../controllers/user");
+const { register, profile, getUsers, uploadImage, approveUser, getLoginSessions } = require("../controllers/user");
 const {createSize,updateSize,getSizes,deleteSize} = require("../controllers/size")
 const {createType,updateType,getTypes,deleteType} = require("../controllers/type");
 const { createDistrict, updateDistrict, getDistricts, deleteDistrict } = require("../controllers/district");
@@ -21,6 +21,7 @@ const router = express.Router();
 
 // AUTHENTICATION
 router.post("/login",loginUser);
+router.post("/login/otp/:userId",confirmUserLogin);
 router.post("/admin/login",loginAdmin);
 router.post("/signup",register);
 router.post("/password-reset",auth,resetPassword);
@@ -29,8 +30,12 @@ router.post("/admin/password-reset/user/:userId",auth,adminResetPassword);
 // USERS
 router.get("/get-current-user",auth,profile);
 router.get("/user/get-all",auth,getUsers);
-router.put("/user/update-image",auth,upload.single("image"),uploadImage)
+router.put("/user/update-image",auth,upload.single("image"),uploadImage);
+router.put("/user/approve/:userId",auth,approveUser);
 
+
+// LOGIN SESSIONS
+router.get("/activity/login/get-all",auth,getLoginSessions);
 
 
 // TAX

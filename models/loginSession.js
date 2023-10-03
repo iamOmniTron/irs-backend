@@ -9,13 +9,16 @@ module.exports = (sequelize,DataTypes)=>{
             autoIncrement:true,
             primaryKey:true
         },
-        time:DataTypes.DATE
+        time:DataTypes.DATE,
+        isAdmin:DataTypes.BOOLEAN
     },{
         sequelize,freezeTableName:true,timestamps:true
     });
 
 
-    Login.associates = (models)=>{
+    Login.associate = (models)=>{
         Login.belongsTo(models.User);
     }
+
+    return Login;
 }
