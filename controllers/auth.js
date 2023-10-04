@@ -65,6 +65,7 @@ module.exports = {
     confirmUserLogin:async(req,res,next)=>{
         try {
             const {userId} = req.params;
+            console.log(userId)
             const {code} = req.body;
             const user = await db.User.findOne({where:{id:userId,otpCode:code}});
             if(!user) return res.json({
