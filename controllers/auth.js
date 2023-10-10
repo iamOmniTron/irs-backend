@@ -14,7 +14,6 @@ const TypeSchemas = {
     }),
     loginAdmin: z.object({
         userId:z.string().min(1,"User ID is required"),
-        password:z.string().min(1,"Password is Required")
     }),
     resetPasswords: z.object({
         currentPassword:z.string().min(1,"Invalid password"),
@@ -35,7 +34,6 @@ module.exports = {
             if(!user) return next('Invalid E-mail address');
             const phoneNumber = formatPhoneNumber(user.phone);
             const code = generateOTP();
-            console.log(code)
             const TWO_MINUTES = ONE_SECOND * 60 * 2;
             const isSent = await sendOTP(code,phoneNumber);
             if(!isSent) return res.json({
@@ -67,7 +65,6 @@ module.exports = {
     confirmUserLogin:async(req,res,next)=>{
         try {
             const {userId} = req.params;
-            console.log(userId)
             const {code} = req.body;
             const user = await db.User.findOne({where:{id:userId,otpCode:code}});
             if(!user) return res.json({
@@ -101,23 +98,146 @@ module.exports = {
     },
     loginAdmin: async (req,res,next)=>{
         try{
-            const {userId,password} = TypeSchemas.loginAdmin.parse(req.body);
+            const {userId} = TypeSchemas.loginAdmin.parse(req.body);
             console.log(req.ip);
             const user = await db.Admin.findOne({where:{userId}});
             if(!user) return next('Invalid UserID/Password');
-            const isMatched = await isPassMatched(password,user.password);
-            if(!isMatched) return next('Invalid UserID/Password');
-            const newSession = await db.Login.create({UserId:user.id,isAdmin:true,time:Date.now()});
+            const phoneNumber = formatPhoneNumber(user.phone);
+            console.log(phoneNumber)
+            const code = generateOTP();
+            const TWO_MINUTES = ONE_SECOND * 60 * 2;
+            const isSent = await sendOTP(code,phoneNumber);
+            if(!isSent) return res.json({
+                success:false, 
+                message:"Error, resend OTP code"
+            })
+            const isUpdated = await db.Admin.update({
+                otpCode:code,
+                otpExpiration:TWO_MINUTES
+            },{
+                where:{userId}
+            });
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"Error, resend OTP code"
+            });
+            return res.json({
+                success:true,
+                data:{
+                    userId:user.id,
+                    code
+                }
+            })
+        }catch(err){
+            return next(err);
+        }
+    },
+    confirmAdminLogin:async(req,res,next)=>{
+        try {
+            const {userId} = req.params;
+            const {code} = req.body;
+            const user = await db.Admin.findOne({where:{id:userId,otpCode:code}});
+            if(!user) return res.json({
+                success:false,
+                message:"invalid code"
+            });
+            const isValidCode = Date.now() > user.otpExpiration;
+            if(!isValidCode) return res.json({
+                success:false,
+                message:"OTP Expired already"
+            });
+            const isUpdated = await db.Admin.update ({otpExpiration:null,otpCode:null},{where:{id:userId}});
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"cannot login user"
+            });
+
+              const newSession = await db.Login.create({UserId:user.id,isAdmin:true,time:Date.now()});
             if(!newSession) return res.json({
                 success:false,
-                message:"Error loggin User in"
+                message:"Error loggin Admin in"
             })
             const token = genUserAuthToken(user.id,true);
             return res.json({
                 success:true,
                 data:token
             })
+
+
+        } catch (error) {
+            return next(err);
+        }
+    },
+    loginLGAAdmin: async (req,res,next)=>{
+        try{
+            const {userId} = TypeSchemas.loginAdmin.parse(req.body);
+            console.log(req.ip);
+            const user = await db.LgaAdmin.findOne({where:{userId}});
+            if(!user) return next('Invalid UserID/Password');
+            const phoneNumber = formatPhoneNumber(user.phone);
+            console.log(phoneNumber)
+            const code = generateOTP();
+            const TWO_MINUTES = ONE_SECOND * 60 * 2;
+            console.log(code);
+            // const isSent = await sendOTP(code,phoneNumber);
+            // if(!isSent) return res.json({
+            //     success:false, 
+            //     message:"Error, resend OTP code"
+            // })
+            const isUpdated = await db.LgaAdmin.update({
+                otpCode:code,
+                otpExpiration:TWO_MINUTES
+            },{
+                where:{userId}
+            });
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"Error, resend OTP code"
+            });
+            return res.json({
+                success:true,
+                data:{
+                    userId:user.id,
+                    code
+                }
+            })
         }catch(err){
+            return next(err);
+        }
+    },
+    confirmLGAAdminLogin:async(req,res,next)=>{
+        try {
+            const {userId} = req.params;
+            const {code} = req.body;
+            const user = await db.LgaAdmin.findOne({where:{id:userId,otpCode:code}});
+            if(!user) return res.json({
+                success:false,
+                message:"invalid code"
+            });
+            const isValidCode = Date.now() > user.otpExpiration;
+            if(!isValidCode) return res.json({
+                success:false,
+                message:"OTP Expired already"
+            });
+            const isUpdated = await db.LgaAdmin.update ({otpExpiration:null,otpCode:null},{where:{id:userId}});
+            if(!isUpdated) return res.json({
+                success:false,
+                message:"cannot login user"
+            });
+
+              const newSession = await db.Login.create({UserId:user.id,isAdmin:true,time:Date.now()});
+            if(!newSession) return res.json({
+                success:false,
+                message:"Error loggin Admin in"
+            })
+            const token = genUserAuthToken(user.id,true);
+            return res.json({
+                success:true,
+                data:token
+            })
+
+
+        } catch (error) {
             return next(err);
         }
     },

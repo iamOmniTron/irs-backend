@@ -10,6 +10,7 @@ module.exports = (sequelize,DataTypes)=>{
             autoIncrement:true,
             primaryKey:true
         },
+        userId:DataTypes.STRING,
         firstname:DataTypes.STRING,
         lastname:DataTypes.STRING,
         email:DataTypes.STRING,

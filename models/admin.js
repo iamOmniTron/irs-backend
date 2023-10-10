@@ -9,6 +9,8 @@ module.exports = (sequelize,DataTypes)=>{
             primaryKey:true
         },
         userId:DataTypes.STRING,
+        phone:DataTypes.STRING,
+        email:DataTypes.STRING,
         password:DataTypes.STRING,
         otpCode:DataTypes.INTEGER,
         otpExpiration:DataTypes.STRING

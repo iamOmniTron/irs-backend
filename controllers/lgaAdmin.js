@@ -66,4 +66,19 @@ module.exports = {
             return next(error);
         }
     },
+    adminProfile: async (req,res,next)=>{
+        try {
+            const {userId} = req;
+            const profile = await db.LgaAdmin.findOne({where:{id:userId},include:[{
+                model:db.LocalGovernmentArea
+            }]});
+
+            return res.json({
+                success:true,
+                data:profile
+            })
+        } catch (error) {
+            return next(error)
+        }
+    }
 }

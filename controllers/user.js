@@ -91,6 +91,19 @@ module.exports = {
             return next(error);
         }
     },
+    getLgaUser: async (req,res,next)=>{
+        try {
+        const {userId} = req;
+        const admin = await db.LgaAdmin.findOne({where:{id:userId}});
+        const users = await db.User.findAll({include:[{model:db.Business,required:true,where:{LocalGovernmentAreaId:admin.LocalGovernmentAreaId},include:[{model:db.Size},{model:db.Type},{model:db.Category},{model:db.BillingDuration},{model:db.Tax,include:[{model:db.GrossTurnOver}]},{model:db.LocalGovernmentArea,include:[{model:db.District}]}]}]});
+            return res.json({
+                success:true,
+                data:users
+            })
+        } catch (error) {
+            return next(error);
+        }
+    },
     profile: async (req,res,next)=>{
         try{
             const {userId,isAdmin} = req;

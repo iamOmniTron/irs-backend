@@ -1,20 +1,20 @@
 const express = require("express");
-const { loginUser, loginAdmin, resetPassword, adminResetPassword, confirmUserLogin } = require("../controllers/auth");
+const { loginUser, loginAdmin, resetPassword, adminResetPassword, confirmUserLogin, confirmAdminLogin, loginLGAAdmin, confirmLGAAdminLogin } = require("../controllers/auth");
 const { createTax, updateTax, getTaxes, deleteTax } = require("../controllers/tax");
 const { auth } = require("../middlewares");
 const { updateGTO, createGTO, getGTOs, deleteGTO } = require("../controllers/turnover");
-const { register, profile, getUsers, uploadImage, approveUser, getLoginSessions } = require("../controllers/user");
+const { register, profile, getUsers, uploadImage, approveUser, getLoginSessions, getLgaUser } = require("../controllers/user");
 const {createSize,updateSize,getSizes,deleteSize} = require("../controllers/size")
 const {createType,updateType,getTypes,deleteType} = require("../controllers/type");
 const { createDistrict, updateDistrict, getDistricts, deleteDistrict } = require("../controllers/district");
 const { createLocalGovernmentArea, updateLocalGovernmentArea, getLocalGovernmentAreas, deleteLocalGovernmentArea, getLGACount } = require("../controllers/lga");
 const { createCategory, updateCategory, getCategories, deleteCategory } = require("../controllers/category");
 const { createBillingDuration, updateBillingDuration, getBillingDurations, deleteBillingDuration } = require("../controllers/billing");
-const { getBusinesses } = require("../controllers/business");
-const { getAllInvoices, getMyInvoices, generatenInvoice } = require("../controllers/invoice");
+const { getBusinesses, getLgaBusiness } = require("../controllers/business");
+const { getAllInvoices, getMyInvoices, generatenInvoice, getLgaInvoices } = require("../controllers/invoice");
 const { createReciept, getAllPayments, getMyPayments, getLGAPayments, getDistrictPayments } = require("../controllers/payment");
 const { upload } = require("../utilities/helpers");
-const { createAdmin, updateAdmin, getAllAdmins, deleteAdmin } = require("../controllers/lgaAdmin");
+const { createAdmin, updateAdmin, getAllAdmins, deleteAdmin, adminProfile } = require("../controllers/lgaAdmin");
 
 const router = express.Router();
 
@@ -24,6 +24,9 @@ const router = express.Router();
 router.post("/login",loginUser);
 router.post("/login/otp/:userId",confirmUserLogin);
 router.post("/admin/login",loginAdmin);
+router.post("/admin/otp/:userId",confirmAdminLogin)
+router.post("/lga/admin/login",loginLGAAdmin);
+router.post("/lga/admin/otp/:userId",confirmLGAAdminLogin )
 router.post("/signup",register);
 router.post("/password-reset",auth,resetPassword);
 router.post("/admin/password-reset/user/:userId",auth,adminResetPassword);
@@ -33,6 +36,7 @@ router.get("/get-current-user",auth,profile);
 router.get("/user/get-all",auth,getUsers);
 router.put("/user/update-image",auth,upload.single("image"),uploadImage);
 router.put("/user/approve/:userId",auth,approveUser);
+router.get("/user/lga",auth,getLgaUser);
 
 
 // LOGIN SESSIONS
@@ -93,11 +97,13 @@ router.delete("/billing/delete/:billingId",auth,deleteBillingDuration);
 
 // BUSINESS
 router.get("/business/get-all",auth,getBusinesses);
+router.get("/business/get-local",auth,getLgaBusiness);
 
 // INVOICES
 router.get("/invoice/get-all",auth,getAllInvoices);
 router.get("/invoice/my-invoices",auth,getMyInvoices);
 router.post("/invoice/create",auth,generatenInvoice);
+router.get("/invoice/lga",auth,getLgaInvoices)
 
 
 // PAYMENTS
@@ -113,5 +119,6 @@ router.post("/admin/lga/create",auth,createAdmin);
 router.put("/admin/lga/:adminId",auth,updateAdmin);
 router.get("/admin/lga/get-all",auth,getAllAdmins);
 router.delete("/admin/lga/delete/:adminId",auth,deleteAdmin);
+router.get("/admin/profile",auth,adminProfile);
 
 module.exports = router;

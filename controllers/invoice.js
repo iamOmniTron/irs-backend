@@ -50,6 +50,19 @@ module.exports = {
         } catch (error) {
             return next(error);
         }
-    }
+    },
+    getLgaInvoices: async (req,res,next)=>{
+        try {
+            const {userId} = req;
+            const user = await db.LgaAdmin.findOne({where:{id:userId}});
+            const invoices = await db.Invoice.findAll({include:[{model:db.Business,required:true,where:{LocalGovernmentAreaId:user.LocalGovernmentAreaId}}]});
+            return res.json({
+                success:true,
+                data:invoices
+            })
+        } catch (error) {
+            return next(error);
+        }
+    },
 
 }

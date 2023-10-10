@@ -107,6 +107,7 @@ module.exports = {
             return next(error)
         }
     },
+    
     getDistrictPayments: async (req,res,next)=>{
         try {
             const {districtId} = req.params;

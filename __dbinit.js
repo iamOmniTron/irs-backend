@@ -3,6 +3,9 @@ const { hashPassword } = require("./utilities/helpers");
 
 const {sequelize} = db;
 
+const ADMIN_PHONE= "07081320894";
+const ADMIN_MAIL = "abdulmumeen15500@gmail.com"
+
 const seedBillingDuration = async () =>{
     const durations = [
         {
@@ -73,7 +76,7 @@ module.exports = async()=>{
         await sequelize.sync();
         console.log("Database Connected successfully...")
         const pass = await hashPassword("12345678")
-        await db.Admin.findOrCreate({where:{userId:"administrator"},defaults:{userId:"administrator",password:pass}});
+        await db.Admin.findOrCreate({where:{userId:"administrator"},defaults:{userId:"administrator",password:pass,phone:ADMIN_PHONE,email:ADMIN_MAIL}});
         // await seedBillingDuration();
         // await seedGTOConfiguration();
     }catch(err){
