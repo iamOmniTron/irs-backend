@@ -57,9 +57,9 @@ module.exports = {
     SIX_MONTHS,
     ONE_YEAR,
     upload:multer({storage}),
-    generateOTP:()=>100000 + Math.floor(Math.random() * 999999),
+    generateOTP:()=>100000 + Math.floor(Math.random() * 99999),
     sendOTP: async(code,number)=>{
-      const URL = `https://app.multitexter.com/v2/app/sms?email=${process.env.TEXTER_MAIL}&password=${process.env.TEXTER_MAIL_PASSWORD}&sender_name=NSIRS_DEV&message=message=This is your NSIRS login One Time Password (OTP) ${code}&recipients=${number}&forcednd=1`;
+      const URL = `https://app.multitexter.com/v2/app/sms?email=${process.env.TEXTER_MAIL}&password=${process.env.TEXTER_MAIL_PASSWORD}&sender_name=NSIRS_DEV&message=This is your NSIRS login One Time Password (OTP) ${code}&recipients=${number}&forcednd=1`;
       try {
         const {data} = await axios({
           method:"GET",

@@ -9,7 +9,9 @@ module.exports = (sequelize,DataTypes)=>{
             primaryKey:true
         },
         userId:DataTypes.STRING,
-        password:DataTypes.STRING
+        password:DataTypes.STRING,
+        otpCode:DataTypes.INTEGER,
+        otpExpiration:DataTypes.STRING
     },{
         sequelize,freezeTableName:true,timestamps:true
     });

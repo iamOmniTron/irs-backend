@@ -18,6 +18,7 @@ module.exports = (sequelize,DataTypes)=>{
     LocalGovernmentArea.associate = (models)=>{
         LocalGovernmentArea.belongsTo(models.District);
         LocalGovernmentArea.hasMany(models.Business);
+        LocalGovernmentArea.hasOne(models.LgaAdmin)
     }
 
     return LocalGovernmentArea;

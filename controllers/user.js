@@ -122,7 +122,6 @@ module.exports = {
         try {
             const {userId} =  req;
             const file = req.file;
-            console.log(file)
             const imageUrl = file.path.replace(/\\/g, "/").substring(7);
             const isUpdated = await db.User.update({imageUrl},{where:{id:userId}});
             if(!isUpdated) return res.json({

@@ -14,6 +14,7 @@ const { getBusinesses } = require("../controllers/business");
 const { getAllInvoices, getMyInvoices, generatenInvoice } = require("../controllers/invoice");
 const { createReciept, getAllPayments, getMyPayments, getLGAPayments, getDistrictPayments } = require("../controllers/payment");
 const { upload } = require("../utilities/helpers");
+const { createAdmin, updateAdmin, getAllAdmins, deleteAdmin } = require("../controllers/lgaAdmin");
 
 const router = express.Router();
 
@@ -105,5 +106,12 @@ router.get("/payment/get-all",auth,getAllPayments);
 router.get("/payment/my-payments",auth,getMyPayments);
 router.get("/payments/lga/:lgaId",auth,getLGAPayments);
 router.get("/payments/district/:districtId",auth,getDistrictPayments);
+
+
+// LGA ADMINS
+router.post("/admin/lga/create",auth,createAdmin);
+router.put("/admin/lga/:adminId",auth,updateAdmin);
+router.get("/admin/lga/get-all",auth,getAllAdmins);
+router.delete("/admin/lga/delete/:adminId",auth,deleteAdmin);
 
 module.exports = router;

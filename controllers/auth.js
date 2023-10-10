@@ -48,7 +48,6 @@ module.exports = {
             },{
                 where:{email}
             });
-            console.log("here")
             if(!isUpdated) return res.json({
                 success:false,
                 message:"Error, resend OTP code"
@@ -56,7 +55,10 @@ module.exports = {
 
             return res.json({
                 success:true,
-                data:user.id
+                data:{
+                    userId:user.id,
+                    code
+                }
             })
         }catch(err){
             return next(err);
